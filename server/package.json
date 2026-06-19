@@ -1,0 +1,19 @@
+{
+  "name": "vibeshelf-server",
+  "version": "1.0.0",
+  "description": "Vibeshelf API server",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
+    "express": "^4.18.2",
+    "groq-sdk": "^1.2.1",
+    "node-fetch": "^3.3.2",
+    "xlsx": "^0.18.5"
+  }
+}
