@@ -28,12 +28,28 @@ export default function ProfilePage({ shelf, lists, tasteProfile, onRemove, onGo
 
   const saveProfile = async () => {
     await updateProfile({ name: editName, bio: editBio, username: editUsername });
+    window.pendo?.track("profile_updated", {
+      updated_fields: [
+        editName !== (user.name || '') ? "name" : null,
+        editBio !== (user.bio || '') ? "bio" : null,
+        editUsername !== (user.username || '') ? "username" : null
+      ].filter(Boolean).join(", "),
+      has_bio: !!editBio.trim(),
+      bio_length: editBio.trim().length,
+      username_changed: editUsername !== (user.username || '')
+    });
     setEditing(false);
   };
   const handleAvatar = e => {
     const f = e.target.files[0]; if (!f) return;
     const reader = new FileReader();
-    reader.onload = ev => setAvatarSrc(ev.target.result);
+    reader.onload = ev => {
+      setAvatarSrc(ev.target.result);
+      window.pendo?.track("avatar_uploaded", {
+        file_type: f.type,
+        file_size_bytes: f.size
+      });
+    };
     reader.readAsDataURL(f);
   };
 
