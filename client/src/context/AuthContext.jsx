@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useCallback } from 'react';
 import axios from 'axios';
-
-const API = 'http://localhost:3001/api';
+import { API_BASE } from '../config';
 const AuthCtx = createContext(null);
 
 export function AuthProvider({ children }) {
@@ -9,7 +8,7 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => localStorage.getItem('vs_token') || null);
 
   const api = useCallback((method, path, data) =>
-    axios({ method, url: `${API}${path}`, data, headers: token ? { Authorization: `Bearer ${token}` } : {} }),
+    axios({ method, url: `${API_BASE}${path}`, data, headers: token ? { Authorization: `Bearer ${token}` } : {} }),
     [token]);
 
   const persist = (u, t) => {
@@ -19,11 +18,11 @@ export function AuthProvider({ children }) {
   };
 
   const login = async (email, password) => {
-    const r = await axios.post(`${API}/auth/login`, { email, password });
+    const r = await axios.post(`${API_BASE}/auth/login`, { email, password });
     persist(r.data.user, r.data.token); return r.data.user;
   };
   const signup = async (name, email, password, username) => {
-    const r = await axios.post(`${API}/auth/signup`, { name, email, password, username });
+    const r = await axios.post(`${API_BASE}/auth/signup`, { name, email, password, username });
     persist(r.data.user, r.data.token); return r.data.user;
   };
   const logout = () => {

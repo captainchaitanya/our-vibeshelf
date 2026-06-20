@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE } from '../config';
 
 const TYPE_COLOR = { book:'var(--book)', film:'var(--film)', game:'var(--game)' };
 const TYPE_LABEL = { book:'📚 Book', film:'🎬 Film', game:'🎮 Game' };
@@ -14,7 +15,7 @@ export default function PublicProfilePage({ username, onBack }) {
   const [shelfTab, setShelfTab] = useState('books');
 
   useEffect(() => {
-    fetch(`http://localhost:3001/api/users/${username}`)
+    fetch(`${API_BASE}/users/${username}`)
       .then(r => r.json())
       .then(data => {
         setProfile(data);

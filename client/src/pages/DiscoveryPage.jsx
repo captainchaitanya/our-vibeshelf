@@ -3,8 +3,7 @@ import axios from 'axios';
 import ResultCard from '../components/ResultCard';
 import { TAGS, TITLES } from '../data/titles';
 import { useAuth } from '../context/AuthContext';
-
-const API = 'http://localhost:3001/api';
+import { API_BASE } from '../config';
 
 const MODE_CONFIG = {
   books:  { label:'Books',       emoji:'📚', cls:'book',  color:'var(--book)',   color2:'var(--book2)',  btnCls:'btn-book',    examples:['Like Narnia — wonder, found family, real stakes','Brandon Sanderson epic — hard magic, betrayal, hope','Cozy mystery, small English village, amateur sleuth'] },
@@ -126,7 +125,7 @@ export default function DiscoveryPage({ mode, onBack, shelf, lists, isSaved, onS
   const fetchAiPicks = async (queryTags) => {
     setAiLoading(true);
     try {
-      const r = await axios.post(`${API}/llm/ai-picks`, { tags:[...queryTags], mode, count:9 });
+      const r = await axios.post(`${API_BASE}/llm/ai-picks`, { tags:[...queryTags], mode, count:9 });
       setAiCards(Array.isArray(r.data) ? r.data : []);
     } catch { setAiCards([]); }
     finally { setAiLoading(false); }
@@ -137,7 +136,7 @@ export default function DiscoveryPage({ mode, onBack, shelf, lists, isSaved, onS
     if (text.trim().length > 2) {
       setThinking(true);
       try {
-        const r = await axios.post(`${API}/llm/detect-tags`, { text:text.trim(), tags:TAGS });
+        const r = await axios.post(`${API_BASE}/llm/detect-tags`, { text:text.trim(), tags:TAGS });
         (r.data.tags||[]).forEach(t=>combined.add(t));
       } catch { localDetect(text).forEach(t=>combined.add(t)); }
       finally { setThinking(false); }

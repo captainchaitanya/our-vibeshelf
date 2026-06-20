@@ -172,6 +172,14 @@ app.get('/api/user/taste', (req, res) => {
 });
 
 // ── LLM via Groq (Llama 3) ───────────────────────────────────────────────────
+function requireGroqKey(res) {
+  if (!process.env.GROQ_API_KEY) {
+    res.status(503).json({ error: 'GROQ_API_KEY not configured on server', tags: [] });
+    return false;
+  }
+  return true;
+}
+
 async function callGroq(prompt, maxTokens = 600) {
   const completion = await groq.chat.completions.create({
     model: 'llama-3.3-70b-versatile',
@@ -191,6 +199,7 @@ function safeParseJSON(raw) {
 }
 
 app.post('/api/llm/detect-tags', async (req, res) => {
+  if (!requireGroqKey(res)) return;
   const { text, tags } = req.body;
   try {
     const raw = await callGroq(
@@ -204,6 +213,7 @@ app.post('/api/llm/detect-tags', async (req, res) => {
 });
 
 app.post('/api/llm/ai-picks', async (req, res) => {
+  if (!requireGroqKey(res)) return;
   const { tags, mode, count = 8 } = req.body;
   const modeStr = mode === 'all' ? 'books, films, and games (good mix of all three)' :
     mode === 'books' ? 'books only' : mode === 'films' ? 'films/movies only' : 'video games only';

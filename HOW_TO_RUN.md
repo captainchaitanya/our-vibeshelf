@@ -26,6 +26,25 @@ npm run dev
 ```
 Open: http://localhost:5173
 
+## Deploy to production
+
+### Frontend (Netlify)
+1. Push this repo to GitHub (no secrets — `.env` is gitignored).
+2. Connect the repo on [Netlify](https://app.netlify.com).
+3. Netlify reads `netlify.toml` automatically (builds from `client/`).
+4. Add environment variable: `VITE_API_URL` = `https://YOUR-BACKEND-URL/api`
+
+### Backend (Render, Railway, or similar)
+The Express API must run on a separate host (Netlify serves only the static React app).
+
+1. Create a **Web Service** pointing at the `server/` folder.
+2. Build command: `npm install`
+3. Start command: `node index.js`
+4. Add environment variable: `GROQ_API_KEY` = your key from https://console.groq.com
+5. Copy the service URL and set it as `VITE_API_URL` on Netlify (with `/api` suffix).
+
+The Groq key lives **only** on the backend host — never in GitHub or the browser.
+
 ## What's new in this version
 - 🦙 Llama 3.3-70B via Groq (free) replaces Anthropic API
 - 📊 547 titles from your Excel file integrated

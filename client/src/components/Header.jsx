@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE } from '../config';
 
 export default function Header({ onNav, onLoginClick, currentPage }) {
   const { user, logout } = useAuth();
@@ -11,7 +12,7 @@ export default function Header({ onNav, onLoginClick, currentPage }) {
     setQ(val);
     if (!val.trim()) { setResults([]); return; }
     try {
-      const r = await fetch(`http://localhost:3001/api/users/search?q=${encodeURIComponent(val)}`);
+      const r = await fetch(`${API_BASE}/users/search?q=${encodeURIComponent(val)}`);
       const data = await r.json();
       setResults(data);
     } catch { setResults([]); }
