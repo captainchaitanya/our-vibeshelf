@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { API_BASE } from '../config';
 
@@ -7,6 +7,7 @@ export default function Header({ onNav, onLoginClick, currentPage }) {
   const [searching, setSearching] = useState(false);
   const [q, setQ] = useState('');
   const [results, setResults] = useState([]);
+  const searchTrackTimer = useRef(null);
 
   const search = async (val) => {
     setQ(val);
@@ -15,6 +16,14 @@ export default function Header({ onNav, onLoginClick, currentPage }) {
       const r = await fetch(`${API_BASE}/users/search?q=${encodeURIComponent(val)}`);
       const data = await r.json();
       setResults(data);
+      if (searchTrackTimer.current) clearTimeout(searchTrackTimer.current);
+      searchTrackTimer.current = setTimeout(() => {
+        window.pendo?.track("user_search_completed", {
+          query: val.trim().substring(0, 50),
+          query_length: val.trim().length,
+          results_count: data.length
+        });
+      }, 800);
     } catch { setResults([]); }
   };
 
