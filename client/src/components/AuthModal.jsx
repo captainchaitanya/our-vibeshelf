@@ -13,8 +13,18 @@ export default function AuthModal({ open, mode: init, onClose }) {
   const handle = async () => {
     setError(''); setLoading(true);
     try {
-      if (mode === 'login') await login(email, password);
-      else await signup(name, email, password, username);
+      if (mode === 'login') {
+        await login(email, password);
+        window.pendo?.track("user_logged_in", {
+          login_method: "email"
+        });
+      } else {
+        await signup(name, email, password, username);
+        window.pendo?.track("user_signed_up", {
+          username,
+          has_display_name: !!name.trim()
+        });
+      }
       onClose();
     } catch (e) { setError(e.response?.data?.error || 'Something went wrong'); }
     finally { setLoading(false); }

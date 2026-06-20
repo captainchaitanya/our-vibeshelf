@@ -123,11 +123,19 @@ export default function DiscoveryPage({ mode, onBack, shelf, lists, isSaved, onS
     }).sort((a,b)=>b.score-a.score);
   }, [mode, tasteProfile, feedbackMap]);
 
-  const fetchAiPicks = async (queryTags) => {
+  const fetchAiPicks = async (queryTags, isRefresh = false) => {
     setAiLoading(true);
     try {
       const r = await axios.post(`${API}/llm/ai-picks`, { tags:[...queryTags], mode, count:9 });
-      setAiCards(Array.isArray(r.data) ? r.data : []);
+      const picks = Array.isArray(r.data) ? r.data : [];
+      setAiCards(picks);
+      window.pendo?.track("ai_picks_generated", {
+        mode,
+        tags_count: queryTags.size || queryTags.length,
+        picks_returned_count: picks.length,
+        is_refresh: isRefresh,
+        tags_used: [...queryTags].slice(0, 5).join(", ")
+      });
     } catch { setAiCards([]); }
     finally { setAiLoading(false); }
   };
@@ -146,7 +154,19 @@ export default function DiscoveryPage({ mode, onBack, shelf, lists, isSaved, onS
     if (combined.size===0) { alert('Try describing a mood, genre, or reference title.'); return; }
     const newDetected = [...combined].filter(t=>!activeTags.has(t));
     setDetectedTags(newDetected); setActiveTags(combined);
-    setResults(computeResults(combined)); setDetail(null); setActiveTab('all');
+    const computedResults = computeResults(combined);
+    setResults(computedResults); setDetail(null); setActiveTab('all');
+    window.pendo?.track("vibe_search_completed", {
+      query_text_length: text.trim().length,
+      mode,
+      manually_selected_tags_count: activeTags.size,
+      ai_detected_tags_count: newDetected.length,
+      total_tags_count: combined.size,
+      results_count: computedResults.length,
+      used_text_input: text.trim().length > 0,
+      used_tag_selection: activeTags.size > 0,
+      top_tags: [...combined].slice(0, 5).join(", ")
+    });
     await fetchAiPicks(combined);
     setTimeout(()=>resultsRef.current?.scrollIntoView({behavior:'smooth',block:'start'}),100);
   };
@@ -313,7 +333,7 @@ export default function DiscoveryPage({ mode, onBack, shelf, lists, isSaved, onS
                   <p style={{ color:'var(--text3)', fontSize:'0.86rem', fontFamily:'var(--font-ui)' }}>Add your GROQ_API_KEY to server/.env to enable Llama 3 live picks.</p>
                 </div>
               )}
-              {aiCards.length>0 && <button className="btn btn-ghost btn-sm" style={{ marginTop:14 }} onClick={()=>fetchAiPicks(activeTags)}>🦙 Refresh Llama 3 picks</button>}
+              {aiCards.length>0 && <button className="btn btn-ghost btn-sm" style={{ marginTop:14 }} onClick={()=>fetchAiPicks(activeTags, true)}>🦙 Refresh Llama 3 picks</button>}
             </div>
           </div>
         )}

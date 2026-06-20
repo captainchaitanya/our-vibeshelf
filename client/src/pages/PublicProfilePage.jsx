@@ -32,6 +32,11 @@ export default function PublicProfilePage({ username, onBack }) {
       const r = await api('post', `/users/${username}/stamp`);
       setStamped(r.data.stamped);
       setStampCount(r.data.stampCount);
+      window.pendo?.track("profile_stamped", {
+        target_username: username,
+        action: r.data.stamped ? "stamp" : "unstamp",
+        new_stamp_count: r.data.stampCount
+      });
     } catch (e) { console.error(e); }
     finally { setStamping(false); }
   };
