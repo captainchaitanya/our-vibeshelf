@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import axios from 'axios';
 import { API_BASE } from '../config';
 const AuthCtx = createContext(null);
@@ -18,7 +18,7 @@ export function AuthProvider({ children }) {
   };
 
   const identifyPendo = (u) => {
-    window.pendo.identify({
+    window.pendo?.identify({
       visitor: {
         id: u.id,
         email: u.email,
@@ -31,6 +31,11 @@ export function AuthProvider({ children }) {
       }
     });
   };
+
+  useEffect(() => {
+    if (user) identifyPendo(user);
+  }, []);
+
   const login = async (email, password) => {
     const r = await axios.post(`${API_BASE}/auth/login`, { email, password });
     persist(r.data.user, r.data.token);
